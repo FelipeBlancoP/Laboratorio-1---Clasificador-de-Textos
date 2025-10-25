@@ -83,7 +83,7 @@ def preprocesar_texto(texto):
 
 # 4) Cálculo de TF-IDF
 def construir_modelo_tfidf(textos_tokenizados):
-    print("Construyendo modelo TF-IDF (calculo manual)...")
+    print("Construyendo modelo TF-IDF...")
     
     N = len(textos_tokenizados) # Número total de documentos
     
@@ -171,7 +171,7 @@ def clasificacion_query(query_texto, model, k):
     query_tokens = preprocesar_texto(query_texto)
     vector_query = vectorize_query(query_tokens, vocabulario, idf_map)
 
-    # 2. Calcular Similitud (Rúbrica Pt. 3.2)
+    # 2. Calcular Similitud
     similitudes = []
     for i, vector_doc_base in enumerate(tfidf_matriz):
         categoria_doc = doc_categories[i]
