@@ -15,10 +15,8 @@ def run_report():
     
     print("=== REPORTE 3.2: PANDAS + MATPLOTLIB ===")
     
-    # 1. Gráfico de OS por país y total por país
     fig, axes = plt.subplots(1, 2, figsize=(15, 6))
     
-    # OS por país
     os_country = pd.crosstab(hosts_df['country'], hosts_df['os'])
     os_country.plot(kind='bar', ax=axes[0])
     axes[0].set_title('Sistemas Operativos por País')
@@ -27,7 +25,6 @@ def run_report():
     axes[0].tick_params(axis='x', rotation=45)
     axes[0].legend(title='Sistema Operativo')
     
-    # Total hosts por país
     hosts_by_country = hosts_df['country'].value_counts()
     hosts_by_country.plot(kind='bar', ax=axes[1], color='skyblue')
     axes[1].set_title('Total de Servidores por País')
@@ -38,7 +35,6 @@ def run_report():
     plt.tight_layout()
     plt.show()
     
-    # 2. Scatter plot hora del día vs tiempo de respuesta
     logs_df['hour'] = pd.to_datetime(logs_df['timestamp']).dt.hour
     plt.figure(figsize=(10, 6))
     plt.scatter(logs_df['hour'], logs_df['response_time_ms'], alpha=0.3, s=10)
@@ -48,7 +44,6 @@ def run_report():
     plt.grid(True, alpha=0.3)
     plt.show()
     
-    # 3. Word cloud de notas de mantenimiento
     text = ' '.join(maintenance_df['notes'].dropna())
     if text.strip():
         wordcloud = WordCloud(width=800, height=400, background_color='white').generate(text)
@@ -60,7 +55,6 @@ def run_report():
     else:
         print("No hay notas de mantenimiento para generar nube de palabras")
     
-    # 4. Relación mantenimientos vs tiempos de respuesta por país
     merged = pd.merge(logs_df, hosts_df, left_on='id_server', right_on='id')
     country_response = merged.groupby('country')['response_time_ms'].mean()
     maintenance_with_hosts = pd.merge(maintenance_df, hosts_df, left_on='id_server', right_on='id')
@@ -68,13 +62,11 @@ def run_report():
     
     fig, ax1 = plt.subplots(figsize=(12, 6))
     
-    # Barras para tiempo de respuesta
     bars = ax1.bar(country_response.index, country_response.values, alpha=0.7, label='Tiempo respuesta (ms)', color='lightblue')
     ax1.set_ylabel('Tiempo respuesta (ms)', color='blue')
     ax1.tick_params(axis='y', labelcolor='blue')
     ax1.set_xlabel('País')
     
-    # Línea para duración de mantenimiento
     ax2 = ax1.twinx()
     line = ax2.plot(country_maintenance.index, country_maintenance.values, color='red', marker='o', linewidth=2, label='Duración mantenimiento (min)')
     ax2.set_ylabel('Duración mantenimiento (min)', color='red')
@@ -83,7 +75,6 @@ def run_report():
     plt.title('Relación mantenimientos vs tiempos de respuesta por país')
     plt.xticks(rotation=45)
     
-    # Leyenda combinada
     lines1, labels1 = ax1.get_legend_handles_labels()
     lines2, labels2 = ax2.get_legend_handles_labels()
     ax1.legend(lines1 + lines2, labels1 + labels2, loc='upper left')
@@ -91,7 +82,6 @@ def run_report():
     plt.tight_layout()
     plt.show()
     
-    # 5. Tiempo de respuesta promedio por mes
     logs_df['month'] = pd.to_datetime(logs_df['timestamp']).dt.to_period('M')
     monthly_response = logs_df.groupby('month')['response_time_ms'].mean()
     

@@ -8,7 +8,6 @@ def generate_logs(hosts_df, num_logs=5000):
     status_codes = [200, 201, 400, 401, 403, 404, 500]
     
     for i in range(num_logs):
-        # Usar la columna 'id' en lugar del índice
         id_server = random.choice(hosts_df['id'].values)
         timestamp = datetime.now() - timedelta(
             days=random.randint(0, 365),
@@ -49,7 +48,6 @@ def generate_maintenance(hosts_df, num_maintenance=200):
     ]
     
     for i in range(num_maintenance):
-        # Usar la columna 'id' en lugar del índice
         id_server = random.choice(hosts_df['id'].values)
         date = datetime.now() - timedelta(days=random.randint(0, 180))
         

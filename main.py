@@ -9,20 +9,16 @@ import os
 def main():
     print("=== LABORATORIO 2 - ANÁLISIS DE DATOS ===")
     
-    # Verificar que existe el archivo hosts.csv
     if not os.path.exists('data/hosts.csv'):
         print("ERROR: No se encuentra data/hosts.csv")
         return
     
-    # 1. Cargar datos de hosts
     print("Cargando datos de hosts...")
     hosts_df = pd.read_csv('data/hosts.csv')
     
-    # Crear columna 'id' basada en el índice
     hosts_df = hosts_df.reset_index().rename(columns={'index': 'id'})
     print(f"Se cargaron {len(hosts_df)} servidores")
     
-    # 2. Generar datos
     print("Generando logs...")
     logs_df = generate_logs(hosts_df, 5000)
     print(f"Se generaron {len(logs_df)} logs")
@@ -31,11 +27,9 @@ def main():
     maintenance_df = generate_maintenance(hosts_df, 200)
     print(f"Se generaron {len(maintenance_df)} registros de mantenimiento")
     
-    # 3. Almacenar en base de datos
     print("Almacenando en base de datos...")
     setup_database(hosts_df, logs_df, maintenance_df)
     
-    # 4. Ejecutar reportes
     print("\n" + "="*50)
     run_r31()
     

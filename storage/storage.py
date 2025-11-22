@@ -44,7 +44,6 @@ def create_tables(conn):
 def insert_df(name, df, conn):
     if len(df) == 0:
         return
-    # Remover la columna 'index' si existe
     if 'index' in df.columns:
         df = df.drop(columns=['index'])
     df.to_sql(name, conn, if_exists="append", index=False)
@@ -54,7 +53,6 @@ def setup_database(hosts_df, logs_df, maintenance_df):
     conn.execute("PRAGMA foreign_keys = ON")
     create_tables(conn)
     
-    # Insertar datos
     insert_df("hosts", hosts_df, conn)
     insert_df("logs", logs_df, conn)
     insert_df("maintenance", maintenance_df, conn)
