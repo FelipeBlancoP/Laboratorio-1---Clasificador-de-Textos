@@ -1,6 +1,9 @@
 import pandas as pd
 import random
+import ollama 
 from datetime import datetime, timedelta
+
+### 1.1. Generar datos de Logs para cada Servidor
 
 def generate_logs(hosts_df, num_logs=5000):
     logs = []
@@ -26,31 +29,39 @@ def generate_logs(hosts_df, num_logs=5000):
     
     return pd.DataFrame(logs)
 
+
+
+### 1.2. Generar datos de Mantenimientos a los Servidores
+
+def generate_note_with_ollama():
+    try:
+        response = ollama.chat(
+            model="phi",
+            messages=[{
+                "role": "user",
+                "content": (
+                    "Generate exactly one short maintenance note. "
+                    "One sentence, under 12 words. "
+                    "Do not add numbering or explanations. "
+                    "Example: 'Server rebooted successfully.'"
+                )
+            }]
+        )
+        return response["message"]["content"].strip()
+    except Exception as e:
+        print(f"[WARN] Ollama failed: {e}")
+        return "Maintenance completed successfully" 
+
 def generate_maintenance(hosts_df, num_maintenance=200):
     maintenance = []
     types = ['Patch', 'Incident', 'Upgrade', 'Security', 'Network']
-    notes_examples = [
-        "Server rebooted successfully",
-        "Security patches applied",
-        "Network configuration updated", 
-        "Hardware upgrade completed",
-        "Performance optimization done",
-        "Backup verification successful",
-        "Firewall rules updated",
-        "OS update installed",
-        "Memory replacement done",
-        "Disk space cleaned up",
-        "Database maintenance performed",
-        "Application deployed",
-        "Monitoring configured",
-        "Security scan completed",
-        "Backup restoration tested"
-    ]
-    
+
     for i in range(num_maintenance):
         id_server = random.choice(hosts_df['id'].values)
         date = datetime.now() - timedelta(days=random.randint(0, 180))
-        
+
+        note = generate_note_with_ollama()
+
         maintenance.append({
             'id_maintenance': i,
             'id_server': id_server,
@@ -58,7 +69,7 @@ def generate_maintenance(hosts_df, num_maintenance=200):
             'type': random.choice(types),
             'duration_min': random.randint(5, 420),
             'technician': f"tech{random.randint(1, 999):03d}",
-            'notes': random.choice(notes_examples)
+            'notes': note
         })
     
     return pd.DataFrame(maintenance)

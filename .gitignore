@@ -1,0 +1,5 @@
+/.venv
+/reports/__pycache__
+/storage/__pycache__
+/generation/__pycache__
+/config/__pycache__
