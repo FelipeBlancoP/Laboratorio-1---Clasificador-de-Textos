@@ -36,14 +36,12 @@ def generate_logs(hosts_df, num_logs=5000):
 def generate_note_with_ollama():
     try:
         response = ollama.chat(
-            model="phi",
+            model="qwen2.5:1.5b",
             messages=[{
                 "role": "user",
                 "content": (
-                    "Generate exactly one short maintenance note. "
-                    "One sentence, under 12 words. "
-                    "Do not add numbering or explanations. "
-                    "Example: 'Server rebooted successfully.'"
+                    "Generate exactly one short maintenance note. One sentence, max 10 words."
+                    "Example: Server rebooted successfully."
                 )
             }]
         )
@@ -61,6 +59,7 @@ def generate_maintenance(hosts_df, num_maintenance=200):
         date = datetime.now() - timedelta(days=random.randint(0, 180))
 
         note = generate_note_with_ollama()
+        print(i,note)
 
         maintenance.append({
             'id_maintenance': i,

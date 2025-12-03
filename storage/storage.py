@@ -5,6 +5,10 @@ from config.config import DB_PATH
 def create_tables(conn):
     schema_sql = """
     BEGIN;
+
+    DROP TABLE IF EXISTS logs;
+    DROP TABLE IF EXISTS maintenance;
+    DROP TABLE IF EXISTS hosts;
     
     CREATE TABLE IF NOT EXISTS hosts (
         id INTEGER PRIMARY KEY,

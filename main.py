@@ -40,7 +40,7 @@ def main():
     run_r33()
     
     print("\n" + "="*50)
-    print("¡Proceso completado!")
+    print("Proceso completado!")
 
 if __name__ == "__main__":
     main()

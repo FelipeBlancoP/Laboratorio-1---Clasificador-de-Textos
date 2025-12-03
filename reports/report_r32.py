@@ -15,25 +15,47 @@ def run_report():
     
     print("=== REPORTE 3.2: PANDAS + MATPLOTLIB ===")
     
-    fig, axes = plt.subplots(1, 2, figsize=(15, 6))
-    
+    fig, axes = plt.subplots(2, 2, figsize=(18, 10))
+    ax1, ax2, ax3, ax4 = axes.flatten()
+
+    # 1) OS por país (gráfico de barras)
+
     os_country = pd.crosstab(hosts_df['country'], hosts_df['os'])
-    os_country.plot(kind='bar', ax=axes[0])
-    axes[0].set_title('Sistemas Operativos por País')
-    axes[0].set_xlabel('País')
-    axes[0].set_ylabel('Cantidad de Servidores')
-    axes[0].tick_params(axis='x', rotation=45)
-    axes[0].legend(title='Sistema Operativo')
-    
-    hosts_by_country = hosts_df['country'].value_counts()
-    hosts_by_country.plot(kind='bar', ax=axes[1], color='skyblue')
-    axes[1].set_title('Total de Servidores por País')
-    axes[1].set_xlabel('País')
-    axes[1].set_ylabel('Cantidad de Servidores')
-    axes[1].tick_params(axis='x', rotation=45)
-    
+    os_country.plot(kind='bar', ax=ax1)
+    ax1.set_title("Sistemas Operativos por País")
+    ax1.set_xlabel("País")
+    ax1.set_ylabel("Cantidad de Hosts")
+    ax1.legend(title="OS")
+    ax1.tick_params(axis='x', rotation=45)
+
+
+    # 2) Pie chart de sistemas operativos totales
+
+    total_os = hosts_df['os'].value_counts()
+    ax2.pie(total_os, labels=total_os.index, autopct='%1.2f%%')
+    ax2.set_title("Total de Sistemas Operativos")
+
+    # 3) Total hosts por país (barras horizontal)
+
+    hosts_by_country = hosts_df['country'].value_counts().sort_values()
+    hosts_by_country.plot(kind='barh', ax=ax3, color='lightgreen')
+    ax3.set_title("Total hosts por país")
+    ax3.set_xlabel("Cantidad de Hosts")
+    ax3.set_ylabel("País")
+
+    # 4) Hosts por país agrupados por environment
+
+    env_country = pd.crosstab(hosts_df['environment'], hosts_df['country'])
+    env_country.plot(kind='bar', ax=ax4)
+    ax4.set_title("Servidores por país agrupados por entorno")
+    ax4.set_xlabel("Entorno")
+    ax4.set_ylabel("Cantidad de Servidores")
+    ax4.legend(title="País")
+    ax4.tick_params(axis='x', rotation=45)
+
     plt.tight_layout()
     plt.show()
+    
     
     logs_df['hour'] = pd.to_datetime(logs_df['timestamp']).dt.hour
     plt.figure(figsize=(10, 6))
