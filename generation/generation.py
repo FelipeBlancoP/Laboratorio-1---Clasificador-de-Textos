@@ -3,8 +3,7 @@ import random
 import ollama 
 from datetime import datetime, timedelta
 
-### 1.1. Generar datos de Logs para cada Servidor
-
+# ===== Generación de logs =====
 def generate_logs(hosts_df, num_logs=5000):
     logs = []
     request_types = ['GET', 'POST', 'PUT', 'DELETE']
@@ -29,10 +28,7 @@ def generate_logs(hosts_df, num_logs=5000):
     
     return pd.DataFrame(logs)
 
-
-
-### 1.2. Generar datos de Mantenimientos a los Servidores
-
+# ===== Generación con Ollama =====
 def generate_note_with_ollama():
     try:
         response = ollama.chat(
@@ -50,6 +46,7 @@ def generate_note_with_ollama():
         print(f"[WARN] Ollama failed: {e}")
         return "Maintenance completed successfully" 
 
+# ===== Generación de mantenimientos =====
 def generate_maintenance(hosts_df, num_maintenance=200):
     maintenance = []
     types = ['Patch', 'Incident', 'Upgrade', 'Security', 'Network']

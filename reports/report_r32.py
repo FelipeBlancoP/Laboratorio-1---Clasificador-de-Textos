@@ -18,8 +18,7 @@ def run_report():
     fig, axes = plt.subplots(2, 2, figsize=(18, 10))
     ax1, ax2, ax3, ax4 = axes.flatten()
 
-    # 1) OS por país (gráfico de barras)
-
+    #1) OS por país (gráfico de barras)
     os_country = pd.crosstab(hosts_df['country'], hosts_df['os'])
     os_country.plot(kind='bar', ax=ax1)
     ax1.set_title("Sistemas Operativos por País")
@@ -29,22 +28,19 @@ def run_report():
     ax1.tick_params(axis='x', rotation=45)
 
 
-    # 2) Pie chart de sistemas operativos totales
-
+    #2) Pie chart de sistemas operativos totales
     total_os = hosts_df['os'].value_counts()
     ax2.pie(total_os, labels=total_os.index, autopct='%1.2f%%')
     ax2.set_title("Total de Sistemas Operativos")
 
-    # 3) Total hosts por país (barras horizontal)
-
+    #3) Total hosts por país (barras horizontal)
     hosts_by_country = hosts_df['country'].value_counts().sort_values()
     hosts_by_country.plot(kind='barh', ax=ax3, color='lightgreen')
     ax3.set_title("Total hosts por país")
     ax3.set_xlabel("Cantidad de Hosts")
     ax3.set_ylabel("País")
 
-    # 4) Hosts por país agrupados por environment
-
+    #4) Hosts por país agrupados por environment
     env_country = pd.crosstab(hosts_df['environment'], hosts_df['country'])
     env_country.plot(kind='bar', ax=ax4)
     ax4.set_title("Servidores por país agrupados por entorno")

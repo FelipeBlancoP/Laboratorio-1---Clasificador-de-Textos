@@ -2,6 +2,7 @@ import sqlite3
 import pandas as pd
 from config.config import DB_PATH
 
+# ===== Almacenamiento en SQLite =====
 def create_tables(conn):
     schema_sql = """
     BEGIN;
