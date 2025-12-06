@@ -1,5 +1,2 @@
 pandas
-matplotlib
 numpy
-wordcloud
-ollama
