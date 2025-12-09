@@ -29,6 +29,8 @@ def process_csv(input_path, output_path):
     other_cols = [c for c in df.columns if c not in cols_time]
 
     df = df[cols_time + other_cols]
+
+    df = df.dropna(axis=1, how='all')
     df = df.dropna(thresh=5)
 
     #Exportar CSV
