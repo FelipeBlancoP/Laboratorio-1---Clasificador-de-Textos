@@ -8,7 +8,7 @@
 
 Requisitos e Instalación
 
-Paso 1: Instalar Librerías\\
+Paso 1: Instalar Librerías\
 Para ejecutar el proyecto, se necesita instalar las librerías de análisis de datos y gráficos. Se puede hacer ejecutando el siguiente comando en la terminal:
 
 pip install pandas matplotlib seaborn scikit-learn numpy scipy
