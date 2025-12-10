@@ -12,6 +12,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), 'streamlit'))
 from exploratory_streamlit import run_eda,plot_sensor_trend
 from model_1_streamlit import run_model_1
 from model_2_streamlit import run_model_2
+from r_streamlit import classify_days
 
 
 @st.cache_data
@@ -60,7 +61,7 @@ def main_app():
 
     st.header("1. Exploración de Datos y Tendencias")
     st.subheader("1.1. Tendencia Temporal de Sensores MOX (Filtrable por Fecha)")
-    st.write("Este gráfico muestra la evolución temporal de los sensores MOX con suavizado mediante media móvil.")
+    st.write("Este gráfico muestra la evolución temporal de los sensores MOX.")
 
 
     min_date = df_original['DateTime'].min().date()
@@ -105,7 +106,7 @@ def main_app():
     plt.close(fig_heatmap)
 
 
-    st.subheader("1.3. Tendencias Temporales (Promedio Móvil de 7 Días)")
+    st.subheader("1.3. Tendencias Temporales de GT")
     st.write("Visualización del cambio en las concentraciones reales (GT) a lo largo del tiempo.")
     
     gt_cols = ['CO(GT)', 'C6H6(GT)', 'NOx(GT)', 'NO2(GT)']
@@ -134,18 +135,18 @@ def main_app():
     
     st.info("Modelo 1: PT08.S1 (CO) vs CO(GT) (Lineal)")
     st.code(f"Ecuación: {model_1_results['equations']['univariable_1']}")
-    st.pyplot(model_1_results['figures']['univariable_1']) # Muestra Figura 1
+    st.pyplot(model_1_results['figures']['univariable_1']) 
     
     st.info("Modelo 2: PT08.S2 (NMHC) vs NMHC(GT) (Cuadrático)")
     st.code(f"Ecuación: {model_1_results['equations']['univariable_2']}")
-    st.pyplot(model_1_results['figures']['univariable_2']) # Muestra Figura 2
+    st.pyplot(model_1_results['figures']['univariable_2'])
 
     st.info("Modelo 3: PT08.S3 (NOx) vs NOx(GT) (Lineal)")
     st.code(f"Ecuación: {model_1_results['equations']['univariable_3']}")
-    st.pyplot(model_1_results['figures']['univariable_3']) # Muestra Figura 3
+    st.pyplot(model_1_results['figures']['univariable_3']) 
 
     st.subheader("2.1.2. Modelamiento I: Regresión Multivariable")
-    st.pyplot(model_1_results['figures']['multivariable']) # Muestra Figura Multivariable
+    st.pyplot(model_1_results['figures']['multivariable']) 
     
     
 
@@ -158,6 +159,87 @@ def main_app():
     st.pyplot(model_2_results['figure']) 
 
     
+    st.markdown("---")
+
+
+
+
+
+    st.header("3. Clasificación de Calidad del Aire")
+    st.write("""
+    En esta sección se categorizan las mediciones individuales según sus niveles de contaminación
+    y además se clasifica cada día completo como **Normal** o **Contaminado** según el promedio diario de CO.
+    """)
+
+    st.subheader("Configurar Umbral para Clasificación")
+    umbral = st.slider(
+        "Umbral de CO(GT) para definir 'Mala' calidad del aire (mg/m3)",
+        min_value=0.5,
+        max_value=5.0,
+        value=1.5,
+        step=0.1
+    )
+
+    df_original["air_quality"] = df_original["CO(GT)"].apply(
+        lambda x: "Buena" if x <= umbral else "Mala"
+    )
+
+
+    daily = df_original.groupby("Date")["CO(GT)"].mean().reset_index()
+    daily["day_type"] = daily["CO(GT)"].apply(
+        lambda x: "Bueno" if x <= umbral else "Malo"
+    )
+
+    st.subheader("Distribución por categoría (todos los registros)")
+    counts = df_original["air_quality"].value_counts()
+
+
+    fig1, ax1 = plt.subplots()
+    wedges1, texts1, autotexts1 = ax1.pie(
+        counts.values,
+        labels=counts.index,
+        autopct="%1.1f%%",
+        startangle=90
+    )
+    ax1.axis("equal")
+    ax1.legend(
+        wedges1,
+        counts.index,
+        title="Categorías",
+        loc="center left",
+        bbox_to_anchor=(1, 0.5)
+    )
+    st.pyplot(fig1)
+
+
+    st.subheader("Clasificación de Días (Promedio Diario)")
+
+    day_counts = daily["day_type"].value_counts().sort_index()
+    total_days = day_counts.sum()
+
+    fig, ax = plt.subplots(figsize=(8, 5))
+
+    bars = ax.bar(day_counts.index, day_counts.values)
+
+
+    ax.set_ylabel("Cantidad de días")
+    ax.set_title("Días Buenos vs Días Malos")
+
+
+    for bar in bars:
+        height = bar.get_height()
+        pct = (height / total_days) * 100
+        ax.text(
+            bar.get_x() + bar.get_width() / 2,
+            height,
+            f"{int(height)} días\n({pct:.1f}%)",
+            ha='center',
+            va='bottom',
+            fontsize=10
+        )
+
+    st.pyplot(fig)
+  
     st.markdown("---")
     
 
