@@ -18,3 +18,5 @@ Ejecutar desde la carpeta raíz del proyecto:
 
 python main.py
 
+
+Y en caso de solo querer ver el reporte directamente, dirigirse a reporte.ipynb, y luego de instaladas las librerias y seleccionar el venv mas actual, clickear en "run all", para luego scrollear hacia abajo para ver el reporte completo
