@@ -13,7 +13,7 @@ Para ejecutar el proyecto, se necesita instalar las librerías de análisis de d
 
 pip install pandas matplotlib seaborn scikit-learn numpy scipy
 
-Paso 2: Ejecutar el Script Principal
+Paso 2: Ejecutar el Script Principal\
 Ejecutar desde la carpeta raíz del proyecto:
 
 python main.py
