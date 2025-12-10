@@ -1,0 +1,111 @@
+import pandas as pd
+import numpy as np
+from scipy.optimize import curve_fit
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error, r2_score
+import matplotlib.pyplot as plt
+
+def run_model_1(df: pd.DataFrame):
+    results = {'figures': {}, 'metrics': {}, 'equations': {}}
+
+    numerical_cols = [
+        'CO(GT)', 'PT08.S1(CO)', 'C6H6(GT)', 'PT08.S2(NMHC)',
+        'NOx(GT)', 'PT08.S3(NOx)', 'NO2(GT)', 'PT08.S4(NO2)',
+        'PT08.S5(O3)', 'T', 'RH', 'AH', 'NMHC(GT)'
+    ]
+
+    df_model = df.dropna(subset=numerical_cols).copy()
+
+    # MODELOS UNIVARIABLES
+    
+    def linear_func(X, a, b):
+        return a * X + b
+
+    def quadratic_func(X, a, b, c):
+        return a * X**2 + b * X + c
+
+    modelos_univariables = [
+        ('PT08.S1(CO)', 'CO(GT)', linear_func, 'Lineal'),
+        ('PT08.S2(NMHC)', 'NMHC(GT)', quadratic_func, 'Cuadrático'),
+        ('PT08.S3(NOx)', 'NOx(GT)', linear_func, 'Lineal')
+    ]
+
+    for i, (sensor, gt_col, func, model_type) in enumerate(modelos_univariables):
+        X = df_model[sensor]
+        Y = df_model[gt_col]
+        key = f'univariable_{i+1}'
+        equation_str = ""
+
+        try:
+            popt, pcov = curve_fit(func, X, Y)
+        except RuntimeError:
+            print(f"Error: No se pudo ajustar la curva para {sensor} vs {gt_col}")
+            continue
+
+        Y_pred = func(X, *popt)
+        rmse = np.sqrt(mean_squared_error(Y, Y_pred))
+        r2 = r2_score(Y, Y_pred)
+        
+        if model_type == 'Lineal':
+            equation_str = f"{gt_col} = {popt[0]:.4f} * {sensor} + {popt[1]:.4f}"
+        elif model_type == 'Cuadrático':
+            equation_str = f"{gt_col} = {popt[0]:.4f} * {sensor}^2 + {popt[1]:.4f} * {sensor} + {popt[2]:.4f}"
+            
+        results['equations'][key] = equation_str
+        results['metrics'][key] = {'RMSE': rmse, 'R2': r2}
+
+        fig, ax = plt.subplots(figsize=(8, 6))
+        ax.scatter(X, Y, label='Datos Reales', alpha=0.3)
+        
+        x_fit = np.linspace(X.min(), X.max(), 100)
+        y_fit = func(x_fit, *popt)
+        ax.plot(x_fit, y_fit, color='red', linewidth=3, label=f'Ajuste {model_type}')
+        
+        ax.set_title(f'Calibración Univariable: {sensor} vs {gt_col} ($R^2={r2:.2f}$)')
+        ax.set_xlabel(f'Señal del Sensor ({sensor})')
+        ax.set_ylabel(f'Concentración Real ({gt_col})')
+        ax.legend()
+        results['figures'][key] = fig
+        plt.close(fig) 
+
+
+    # MODELO MULTIVARIABLE
+
+    TARGET_COL = 'CO(GT)'
+    FEATURE_COLS = [
+        'PT08.S1(CO)', 'PT08.S2(NMHC)', 'PT08.S5(O3)', 
+        'T', 'RH', 'AH' 
+    ]
+    
+    X = df_model[FEATURE_COLS]
+    Y = df_model[TARGET_COL]
+
+    X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.3, random_state=42)
+
+    model = LinearRegression()
+    model.fit(X_train, Y_train)
+
+    Y_pred = model.predict(X_test)
+    rmse_multi = np.sqrt(mean_squared_error(Y_test, Y_pred))
+    r2_multi = r2_score(Y_test, Y_pred)
+
+    coeficientes = {'Intercepto': model.intercept_}
+    for feature, coef in zip(FEATURE_COLS, model.coef_):
+        coeficientes[feature] = coef
+        
+    results['metrics']['multivariable'] = {'RMSE': rmse_multi, 'R2': r2_multi}
+    results['equations']['multivariable'] = coeficientes
+
+    fig_multi, ax_multi = plt.subplots(figsize=(8, 6))
+    ax_multi.scatter(Y_test, Y_pred, alpha=0.5)
+    ax_multi.plot([Y.min(), Y.max()], [Y.min(), Y.max()], 'r--', lw=2) 
+    ax_multi.set_title(f'Modelo Multivariable: Predicción vs Real ({TARGET_COL})')
+    ax_multi.set_xlabel(f'Concentración Real ({TARGET_COL})')
+    ax_multi.set_ylabel(f'Concentración Predicha ({TARGET_COL})')
+    ax_multi.grid(True)
+    results['figures']['multivariable'] = fig_multi
+    plt.close(fig_multi)
+
+    print("Fin Modelo 1")
+    return results
