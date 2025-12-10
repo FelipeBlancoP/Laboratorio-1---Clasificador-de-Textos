@@ -72,7 +72,7 @@ def run_model_1(df: pd.DataFrame):
         plt.show()
 
     
-    # MODELO MULTIVARIABLE (Regresión Lineal Múltiple)
+    # MODELO MULTIVARIABLE
 
     TARGET_COL = 'CO(GT)'
     FEATURE_COLS = [
@@ -80,7 +80,7 @@ def run_model_1(df: pd.DataFrame):
         'T', 'RH', 'AH' 
     ]
     
-    print("\n--- Modelo Multivariable (Regresión Lineal Múltiple) ---")
+    print("\nModelo Multivariable (Regresión Lineal Múltiple)")
 
     X = df_model[FEATURE_COLS]
     Y = df_model[TARGET_COL]
